@@ -1,5 +1,3 @@
-'use client'
-
 import type { ReactNode } from 'react'
 import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { ErrorBoundary } from 'react-error-boundary'

@@ -1,6 +1,3 @@
-// src/components/AppErrorView.tsx
-'use client'
-
 import { startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { normalizeError } from '@/utils/normalizeError'
