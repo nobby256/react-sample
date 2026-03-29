@@ -1,29 +1,33 @@
 'use client'
 
-import { startTransition, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryErrorResetBoundary } from '@tanstack/react-query'
 import { normalizeError } from '@/utils/normalizeError'
+import { AppError } from '@/utils/AppError'
 import { BackButton } from '@/components/BackButton'
 
-type Props = {
+/**
+ * 第3層: 継続可能エラー用 error.tsx
+ * - 401 / 403 は「継続不能」として第2層にバブルアップ
+ * - それ以外はここで全画面エラー＋リトライ／戻る
+ * - 完全CSR前提なので router.refresh() は使わない
+ */
+export default function Error({
+  error,
+  reset,
+}: {
   error: Error & { digest?: string }
   reset: () => void
-}
-
-export default function Error({ error, reset }: Props) {
+}) {
   const router = useRouter()
-  const appError = normalizeError(error)
+  const { reset: resetQueryErrors } = useQueryErrorResetBoundary()
 
-  useEffect(() => {
-    if (appError.status === 401 || appError.status === 403) {
-      router.replace(
-        `/fatal-error?status=${appError.status}`
-      )
-    }
-  }, [appError, router])
+  const appError: AppError = normalizeError(error)
 
+  // 401 / 403 は第2層の error.tsx に任せたいので再スローしてバブルアップ
   if (appError.status === 401 || appError.status === 403) {
-    return null
+    throw error
   }
 
   const title =
@@ -33,28 +37,35 @@ export default function Error({ error, reset }: Props) {
         ? 'データがありません'
         : '想定外のエラーが発生しました'
 
-  const message =
-    appError.status === 503
-      ? '通信状況が不安定です。'
-      : appError.status === 404
-        ? 'データが削除されたか、存在しません。'
-        : 'もう一度お試しください。'
 
+  // ログ出しなどはここで
+  useEffect(() => {
+    console.error('AppError:', appError)
+  }, [appError])
+
+  // 同じ画面でのリトライ
   const handleRetry = () => {
-    startTransition(() => {
-      reset()
-      router.refresh()
-    })
+    // TanStack Query のエラー状態をクリア
+    resetQueryErrors()
+    // このセグメントの Error Boundary 状態をリセットして子ツリーを再レンダリング
+    reset()
+  }
+
+  // 前の画面に戻る
+  const handleBack = () => {
+    // 前の画面と QueryKey が共有されている場合に備えて、エラー状態だけ掃除
+    resetQueryErrors()
+    // このセグメント自体から離脱するので、reset() は必須ではない
+    router.back()
   }
 
   return (
-    <main>
+    <>
       <h1>{title}</h1>
-      <p>{message}</p>
+      <p>ステータス: {appError.status}</p>
+      <p>{appError.message}</p>
+      <button type="button" onClick={handleRetry}>リトライ</button>
       <BackButton label="前の画面に戻る" />
-      <button type="button" onClick={handleRetry}>
-        再試行
-      </button>
-    </main>
+    </>
   )
 }
