@@ -8,7 +8,7 @@ export function PermissionGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (status === 'denied') {
-      router.replace('/global-error?status=403')
+      router.replace('/fatal-error?status=403')
     }
   }, [status, router])
 

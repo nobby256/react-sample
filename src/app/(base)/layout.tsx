@@ -2,14 +2,17 @@
 
 import { AppBootstrapper } from '@/filters/AppBootstrapper'
 import { PermissionGate } from '@/filters/PermissionGate'
+import { SessionDeadGuard } from '@/filters/SessionDeadGuard'
 import type { ReactNode } from 'react'
 
 export default function BaseLayout({ children }: { children: ReactNode }) {
   return (
-    <AppBootstrapper>
+    <SessionDeadGuard>
       <PermissionGate>
-        {children}
+        <AppBootstrapper>
+          {children}
+        </AppBootstrapper>
       </PermissionGate>
-    </AppBootstrapper>
+    </SessionDeadGuard>
   )
 }
