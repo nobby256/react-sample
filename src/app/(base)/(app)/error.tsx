@@ -10,7 +10,10 @@ import { BackButton } from '@/components/BackButton'
  * - 完全CSR前提なので router.refresh() ではなく、reset()を使用する
  * - refetchOnMount: 'always' により必ず再フェッチされるため、resetQueryErrors()は不要
  */
-export default function AppErrorPage({ error, reset }: NextErrorPageProps) {
+export default function RootErrorPage({ error, reset }: {
+  error: Error & { digest?: string },
+  reset: () => void
+}) {
 
   const appError = normalizeError(error)
   if (appError.fatal) {
