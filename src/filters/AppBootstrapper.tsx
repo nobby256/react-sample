@@ -42,5 +42,5 @@ function useAppData() {
     })
   }, [isSuccess, data, initialized, setAppInitialData])
 
-  return { isLoading: initialized }
+  return { isLoading: !initialized }
 }

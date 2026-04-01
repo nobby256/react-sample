@@ -2,6 +2,7 @@
 
 import { Suspense, type ReactNode } from 'react'
 import { Providers } from '@/filters/Providers'
+import { MockProvider } from '@/mocks/MockProvider'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。
 // そして、global-error.tsxはdevモードでは実行されない。
@@ -12,11 +13,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <body>
-        <Providers>
-          <Suspense>
-            {children}
-          </Suspense>
-        </Providers>
+        <MockProvider>
+          <Providers>
+            <Suspense>
+              {children}
+            </Suspense>
+          </Providers>
+        </MockProvider>
       </body>
     </html>
   )

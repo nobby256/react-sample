@@ -6,5 +6,5 @@ export type AppInitialData = {
 }
 
 export async function fetchAppData(): Promise<AppInitialData> {
-  return $api<AppInitialData>('/api/app-initial-data')
+  return $api<AppInitialData>('/api/app-data')
 }
