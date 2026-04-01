@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getResults } from '@/api/getResults'
+import { fetchResults } from '@/services/search/fetchResults'
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -12,7 +12,7 @@ export default function ResultsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['results', keyword, category],
-    queryFn: () => getResults(keyword, category),
+    queryFn: () => fetchResults(keyword, category),
     throwOnError: true,
   })
 

@@ -3,8 +3,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { getDetail } from '@/api/getDetail'
-import { updateDetail } from '@/api/updateDetail'
+import { fetchDetail } from '@/services/details/fetchDetail'
+import { putDetail } from '@/services/details/putDetail'
 import { withAsyncAppError } from '@/utils/withAsyncAppError'
 
 export default function DetailPage() {
@@ -13,12 +13,12 @@ export default function DetailPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['detail', id],
-    queryFn: () => getDetail(id),
+    queryFn: () => fetchDetail(id),
     throwOnError: true,
   })
 
   const mutation = useMutation({
-    mutationFn: updateDetail,
+    mutationFn: putDetail,
   })
 
   const handleUpdate = withAsyncAppError(async () => {

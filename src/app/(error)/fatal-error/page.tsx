@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
-import { logout } from '@/api/logout'
+import { postLogout } from '@/services/auth/postLogout'
 
 /**
  * /fatal-error: 継続不能エラー専用ページ
@@ -21,7 +21,7 @@ export default function FatalErrorPage() {
   const hasRunLogout = useRef(false)
 
   const logoutMutation = useMutation({
-    mutationFn: logout,
+    mutationFn: postLogout,
     retry: false,
     throwOnError: false, // ここでは ErrorBoundary に飛ばさない
     onError: (error) => {

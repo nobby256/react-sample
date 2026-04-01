@@ -5,6 +5,6 @@ export type AppInitialData = {
   authorities: string[]
 }
 
-export async function fetchAppInitialData(): Promise<AppInitialData> {
+export async function fetchAppData(): Promise<AppInitialData> {
   return $api<AppInitialData>('/api/app-initial-data')
 }
