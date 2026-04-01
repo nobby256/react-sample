@@ -5,23 +5,16 @@ import { BackButton } from '@/components/BackButton'
 
 /**
  * 第3層: 継続可能エラー用 error.tsx
- * - 401 / 403 は「継続不能」として第2層にバブルアップ
+ * - 致命的エラーは「継続不能」として第2層にバブルアップ
  * - それ以外はここで全画面エラー＋リトライ／戻る
  * - 完全CSR前提なので router.refresh() ではなく、reset()を使用する
  * - refetchOnMount: 'always' により必ず再フェッチされるため、resetQueryErrors()は不要
  */
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
-  const appError = normalizeError(error)
+export default function AppErrorPage({ error, reset }: NextErrorPageProps) {
 
-  // 401 / 403 は第2層の error.tsx に任せたいので再スローしてバブルアップ
-  if (appError.status === 401 || appError.status === 403) {
-    throw error
+  const appError = normalizeError(error)
+  if (appError.fatal) {
+    throw error // 致命的エラーは再スロー
   }
 
   const title =

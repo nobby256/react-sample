@@ -24,7 +24,7 @@ function useAppData() {
   const setAppInitialData = useAppStore((s) => s.setAppInitialData)
 
   const { data, isSuccess } = useQuery({
-    queryKey: ['app-initial-data'],
+    queryKey: ['app-data'],
     queryFn: fetchAppData,
     staleTime: Infinity, // 起動時に取得した基礎情報は、画面遷移や再レンダリングで再取得したくないため。
     retry: false, // 起動時の基礎情報取得は、自動再試行せず失敗を明示したいので。

@@ -1,18 +1,14 @@
+'use client'
+
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { fetchMe } from '@/services/auth/fetchMe'
+import { AppError } from '@/utils/AppError'
 
 export function PermissionGate({ children }: { children: ReactNode }) {
-  const router = useRouter()
-  const {status} = usePermission()
+  const { isLoading, isAllowed } = usePermission()
 
-  useEffect(() => {
-    if (status === 'denied') {
-      router.replace('/fatal-error?status=403')
-    }
-  }, [status, router])
-
-  if (status !== 'allowed') {
+  if (isLoading) {
     return (
       <main>
         <p>表示権限を確認中です...</p>
@@ -20,12 +16,26 @@ export function PermissionGate({ children }: { children: ReactNode }) {
     )
   }
 
+  if (!isAllowed) {
+    // 403はAppErrorのstatusコードとして定義されているため、これをスローして第2層の error.tsx にバブルアップさせる
+    throw new AppError(403, 'Forbidden') 
+  }
+
   return <>{children}</>
 }
 
+function usePermission() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['me'],
+    queryFn: fetchMe,
+    staleTime: Infinity,
+    retry: false,
+    refetchOnWindowFocus: false,
+    throwOnError: true,
+  })
 
-function usePermission(): { status: 'checking' | 'allowed' | 'denied' } {
-    return {
-        status: 'allowed'
-    }
+  return {
+    isLoading,
+    isAllowed: true
+  }
 }

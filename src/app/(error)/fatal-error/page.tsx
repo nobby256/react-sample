@@ -4,45 +4,19 @@ import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { postLogout } from '@/services/auth/postLogout'
+import { forceSessionDead } from '@/filters/SessionDeadGuard'
 
 /**
- * /fatal-error: 継続不能エラー専用ページ
- * - マウント時に一度だけ:
- *   - sessionStorage に「セッション死亡」フラグを立てる
- *   - TanStack Query の mutation で ログアウトを呼び出す
+ * 継続不能エラー専用ページ
  */
 export default function FatalErrorPage() {
-  const searchParams = useSearchParams()
+  // ログアウト呼び出し（副作用のみ）
+  useLogout()
 
+  const searchParams = useSearchParams()
   const statusParam = searchParams.get('status')
   const from = searchParams.get('from') ?? undefined
-  const status = statusParam ? Number(statusParam) : undefined
-
-  const hasRunLogout = useRef(false)
-
-  const logoutMutation = useMutation({
-    mutationFn: postLogout,
-    retry: false,
-    throwOnError: false, // ここでは ErrorBoundary に飛ばさない
-    onError: (error) => {
-      console.error('Logout request error:', error)
-      // ここで終わり。画面上の挙動は変えない
-    },
-  })
-
-  useEffect(() => {
-    if (hasRunLogout.current) {
-      return
-    }
-    hasRunLogout.current = true
-
-    // マウント時に一度だけ fire-and-forget で実行
-    logoutMutation.mutate()
-
-    // この SPA セッションは死亡したと明示
-    // SessinonDeadGuard でこのフラグを使用する
-    sessionStorage.setItem('sessionDead', '1')
-  }, [logoutMutation])
+  const status = statusParam ? Number(statusParam) || 500 : 500
 
   let title = '致命的なエラーが発生しました'
   let message =
@@ -59,7 +33,7 @@ export default function FatalErrorPage() {
   return (
     <main>
       <h1>{title}</h1>
-      <p>ステータス: {status ?? '不明'}</p>
+      <p>ステータス: {status}</p>
       <p>{message}</p>
 
       {from && (
@@ -69,4 +43,31 @@ export default function FatalErrorPage() {
       )}
     </main>
   )
+}
+
+function useLogout(): void {
+  const hasRunLogout = useRef(false)
+
+  const { mutate } = useMutation({
+    mutationFn: postLogout,
+    retry: false,
+    throwOnError: false, // ここでは ErrorBoundary に飛ばさない
+    onError: (error) => {
+      console.error('Logout request error:', error)
+    },
+  })
+
+  useEffect(() => {
+    if (hasRunLogout.current) {
+      return
+    }
+    hasRunLogout.current = true
+
+    // マウント時に一度だけ fire-and-forget で実行
+    mutate()
+
+    // この SPA セッションは死亡したと明示
+    forceSessionDead()
+
+  }, [mutate])
 }
