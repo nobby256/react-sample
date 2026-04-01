@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { Providers } from '@/filters/Providers'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。
@@ -13,7 +13,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="ja">
       <body>
         <Providers>
-          {children}
+          <Suspense>
+            {children}
+          </Suspense>
         </Providers>
       </body>
     </html>

@@ -1,19 +1,21 @@
 'use client'
 
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { fetchDetail } from '@/services/details/fetchDetail'
 import { putDetail } from '@/services/details/putDetail'
 import { withAsyncAppError } from '@/utils/withAsyncAppError'
 
 export default function DetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
   const [name, setName] = useState('sample')
 
   const { data, isLoading } = useQuery({
     queryKey: ['detail', id],
-    queryFn: () => fetchDetail(id),
+    queryFn: () => fetchDetail(id!),
+    enabled: !!id,
     throwOnError: true,
   })
 
@@ -22,10 +24,17 @@ export default function DetailPage() {
   })
 
   const handleUpdate = withAsyncAppError(async () => {
+    if (!id) return
     await mutation.mutateAsync({ id, name })
   })
 
-  if (isLoading) return <main>読み込み中...</main>
+  if (!id) {
+    return <main>IDが指定されていません。</main>
+  }
+
+  if (isLoading) {
+    return <main>読み込み中...</main>
+  }
 
   return (
     <main>

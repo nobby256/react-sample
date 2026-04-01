@@ -24,7 +24,7 @@ export default function ResultsPage() {
       <ul>
         {data?.map((item) => (
           <li key={item.id}>
-            <button type="button" onClick={() => router.push(`/detail/${item.id}`)}>
+            <button type="button" onClick={() => router.push(`/detail?id=${item.id}`)}>
               {item.name}
             </button>
           </li>
