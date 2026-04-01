@@ -1,20 +1,25 @@
 'use client'
 
-import { FatalErrorView } from '@/components/FatalErrorView'
-import { normalizeError } from '@/utils/normalizeError'
+import { useEffect } from 'react'
+import { redirectToErrorPage } from '@/utils/redirectToErrorPage'
 
 export default function GlobalError({
   error,
 }: {
   error: Error
 }) {
-  const appError = normalizeError(error)
-  
+  useRedirectToErrorPage(error)
   return (
     <html lang="ja">
       <body>
-        <FatalErrorView message={appError.message} />
+        <p>エラーページへ移動しています...</p>
       </body>
     </html>
   )
+}
+
+function useRedirectToErrorPage(error: Error): void {
+  useEffect(() => {
+    redirectToErrorPage(error)
+  }, [error])
 }

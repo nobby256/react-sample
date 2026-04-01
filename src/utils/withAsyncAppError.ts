@@ -1,4 +1,6 @@
 import { normalizeError } from './normalizeError'
+import type { AppError } from './AppError'
+import { redirectToErrorPage } from './redirectToErrorPage'
 
 export function withAsyncAppError<TArgs extends unknown[]>(
   fn: (...args: TArgs) => Promise<void>,
@@ -6,19 +8,18 @@ export function withAsyncAppError<TArgs extends unknown[]>(
   return async (...args: TArgs) => {
     try {
       await fn(...args)
-    } catch (err) {
-      handleAppError(err)
+    } catch (error) {
+      const appError = normalizeError(error)
+      if (appError.fatal) {
+        redirectToErrorPage(error)
+        return
+      }
+
+      nofity(appError)
     }
   }
 }
 
-function handleAppError(err: unknown) {
-  const appError = normalizeError(err)
-
-  if (appError.status === 401 || appError.status === 403) {
-    window.location.replace(`/fatal-error?status=${appError.status}`)
-    return
-  }
-
+function nofity(appError: AppError) {
   alert('更新に失敗しました')
 }
