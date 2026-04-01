@@ -4,27 +4,24 @@ import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 
 export function SessionDeadGuard({ children }: { children: ReactNode }) {
-  const { isDead } = useSessionStatus()
-  if (isDead) {
-    return null
-  }
+  useSessionStatus()
   return <>{children}</>
 }
 
 export function forceSessionDead() {
+  if (typeof window === 'undefined') return
   sessionStorage.setItem('sessionDead', '1')
 }
 
-function useSessionStatus(): { isDead: boolean } {
-  const isDead = sessionStorage.getItem('sessionDead') === '1'
-
+function useSessionStatus(): void {
   useEffect(() => {
-    if (isDead) {
-      // このSPAセッションでは何もさせず、BFFのログイン入口へ
-      // 例: BFF側の /auth/login に飛ばす
-      window.location.href = '/auth/login'
-    }
-  }, [isDead])
+    if (typeof window === 'undefined') return
 
-  return { isDead }
+    const dead = sessionStorage.getItem('sessionDead') === '1'
+    if (!dead) return
+
+    // クライアントルーターではなく「サーバーに再リクエスト」したいので、
+    // 今の URL をフルリロードする
+    window.location.reload()
+  }, [])
 }
