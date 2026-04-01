@@ -5,6 +5,21 @@ import { fetchAppInitialData } from '@/api/fetchAppInitialData'
 import { useAppStore } from '@/stores/useAppStore'
 
 export function AppBootstrapper({ children }: { children: ReactNode }) {
+
+  const { isLoading } = useAppData()
+
+  if (isLoading) {
+    return (
+      <main>
+        <p>初期化中です...</p>
+      </main>
+    )
+  }
+
+  return <>{children}</>
+}
+
+function useAppData() {
   const initialized = useAppStore((s) => s.initialized)
   const setAppInitialData = useAppStore((s) => s.setAppInitialData)
 
@@ -18,20 +33,14 @@ export function AppBootstrapper({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    if (!isSuccess || !data || initialized) return
+    if (!isSuccess || !data || initialized) {
+      return
+    }
     setAppInitialData({
       userName: data.userName,
       authorities: data.authorities,
     })
   }, [isSuccess, data, initialized, setAppInitialData])
 
-  if (!initialized) {
-    return (
-      <main>
-        <p>初期化中です...</p>
-      </main>
-    )
-  }
-
-  return <>{children}</>
+  return { isLoading: initialized }
 }

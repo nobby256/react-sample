@@ -12,12 +12,14 @@ export const useAppStore = create<AppStoreState>()((set) => ({
   userName: '',
   authorities: [],
   initialized: false,
+
   setAppInitialData: ({ userName, authorities }) =>
     set({
       userName,
       authorities,
       initialized: true,
     }),
+
   clearAppInitialData: () =>
     set({
       userName: '',
