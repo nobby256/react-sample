@@ -1,6 +1,6 @@
 'use client'
 
-import { normalizeError } from '@/utils/normalizeError'
+import { normalizeError } from '@/lib/error'
 import { BackButton } from '@/components/BackButton'
 
 /**

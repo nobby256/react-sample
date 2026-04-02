@@ -1,6 +1,6 @@
 'use client'
 
-import { useRedirectToErrorPage } from '@/hooks/useRedirectToErrorPage'
+import { useRedirectToErrorPage } from '@/lib/error'
 
 export default function GlobalError({ error }: { error: Error }) {
   useRedirectToErrorPage(error)

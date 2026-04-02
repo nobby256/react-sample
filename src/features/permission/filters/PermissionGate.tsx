@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { AppError } from '@/utils/AppError'
+import { AppError } from '@/lib/error/AppError'
 import { usePermissions } from './PermissionProvider'
 
 type PermissionGateProps = {

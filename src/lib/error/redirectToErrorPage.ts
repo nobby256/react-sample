@@ -1,4 +1,4 @@
-import { normalizeError } from '@/utils/normalizeError'
+import { normalizeError } from './normalizeError'
 
 type RedirectToErrorPageOptions = {
   includeFrom?: boolean
