@@ -1,0 +1,1 @@
+export type LoadStatus = 'blank' | 'loading' | 'success' | 'error'
