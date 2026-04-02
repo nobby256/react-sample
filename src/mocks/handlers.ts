@@ -51,4 +51,10 @@ export const handlers = [
       },
     ])
   }),
+  http.get('/api/ui-permissions', () => {
+    return HttpResponse.json({
+      screens: ['top', 'detail.view', 'report.list'],
+      actions: ['detail.update', 'detail.delete', 'report.export'],
+    })
+  }),
 ]
