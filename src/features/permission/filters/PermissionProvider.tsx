@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { createContext, useContext, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { UiPermissions } from '../model/UiPermissions'
-import { fetchUiPermissions } from '../api/fetchUiPermissions'
+import { fetchUiPermissions } from '../services/fetchUiPermissions'
 
 type PermissionContextValue = {
   isLoading: boolean

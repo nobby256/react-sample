@@ -1,6 +1,6 @@
 'use client'
 
-import { AppBootstrapper } from '@/filters/AppBootstrapper'
+import { AppBootstrapper } from '@/features/app-bootstrap'
 import { PermissionProvider } from '@/features/permission'
 import type { ReactNode } from 'react'
 

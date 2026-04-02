@@ -27,14 +27,6 @@ export const handlers = [
     })
   }),
 
-  http.get('/api/me', () => {
-    return HttpResponse.json({
-      userId: 'u-001',
-      userName: 'demo-user',
-      authorities: ['USER', 'REPORT_VIEW'],
-    })
-  }),
-
   http.get('/api/results', ({ request }) => {
     const url = new URL(request.url)
     const keyword = url.searchParams.get('keyword') ?? ''

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAppData } from '@/services/app/fetchAppData'
-import { useAppStore } from '@/stores/useAppStore'
+import { fetchAppData } from '../services/fetchAppData'
+import { useAppStore } from '../stores/useAppStore'
 
 export function AppBootstrapper({ children }: { children: ReactNode }) {
 
