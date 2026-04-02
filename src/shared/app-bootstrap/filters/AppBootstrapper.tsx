@@ -81,7 +81,7 @@ export function AppBootstrapper({
         appDataStatus === 'loading'
 
     if (isLoading) {
-        return <>{fallback ?? <p>アプリを読み込んでいます...</p>}</>
+        return <>{fallback ?? <p>アプリデータを読み込んでいます...</p>}</>
     }
 
     return <>{children}</>

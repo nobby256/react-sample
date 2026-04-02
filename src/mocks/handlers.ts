@@ -1,10 +1,21 @@
 import { http, HttpResponse } from 'msw'
 
 export const handlers = [
+  http.get('/api/profile', () => {
+    return HttpResponse.json({
+      userId: 'user-001',
+      userName: 'demo-user',
+      tenantId: 'tenant-001',
+    })
+  }),
+
   http.get('/api/app-data', () => {
     return HttpResponse.json({
-      userName: 'demo-user',
-      authorities: ['USER', 'ADMIN'],
+      masterA: ['A001', 'A002', 'A003'],
+      masterB: [
+        { code: 'B001', name: 'マスタB-1' },
+        { code: 'B002', name: 'マスタB-2' },
+      ],
     })
   }),
 
@@ -43,6 +54,7 @@ export const handlers = [
       },
     ])
   }),
+
   http.get('/api/ui-permissions', () => {
     return HttpResponse.json({
       screens: ['top', 'detail.view', 'report.list'],
