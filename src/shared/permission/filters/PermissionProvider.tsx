@@ -14,9 +14,17 @@ type PermissionContextValue = {
   hasAction: (action: string) => boolean
 }
 
-const PermissionContext = createContext<PermissionContextValue | null>(null)
+const PermissionContext = createContext<PermissionContextValue | undefined>(undefined)
 
-export function PermissionProvider({ children }: { children: ReactNode }) {
+type PermissionProviderProps = {
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+export function PermissionProvider({
+  children,
+  fallback,
+}: PermissionProviderProps) {
   const { data, isLoading } = useQuery<UiPermissions>({
     queryKey: ['ui-permissions'],
     queryFn: fetchUiPermissions,
@@ -37,6 +45,10 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       hasAction: (action: string) => actions.includes(action),
     }
   }, [data, isLoading])
+
+  if (isLoading) {
+    return <>{fallback ?? <p>権限を読み込んでいます...</p>}</>
+  }
 
   return (
     <PermissionContext.Provider value={value}>

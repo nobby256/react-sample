@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 
 export default function BaseLayout({ children }: { children: ReactNode }) {
   return (
-    <PermissionProvider>
+    <PermissionProvider fallback={<p>権限を読み込んでいます...</p>}>
       <AppBootstrapper>
         {children}
       </AppBootstrapper>
