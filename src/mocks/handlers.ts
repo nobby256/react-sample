@@ -1,7 +1,8 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, delay } from 'msw'
 
 export const handlers = [
   http.get('/api/profile', () => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     return HttpResponse.json({
       userId: 'user-001',
       userName: 'demo-user',
@@ -9,7 +10,10 @@ export const handlers = [
     })
   }),
 
-  http.get('/api/app-data', () => {
+  http.get('/api/app-data',  async () => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
+    await delay(2000) // 2秒の遅延をシミュレート
+
     return HttpResponse.json({
       masterA: ['A001', 'A002', 'A003'],
       masterB: [
@@ -20,6 +24,7 @@ export const handlers = [
   }),
 
   http.get('/api/detail/:id', ({ params }) => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const id = String(params.id)
 
     return HttpResponse.json({
@@ -29,6 +34,7 @@ export const handlers = [
   }),
 
   http.put('/api/detail/:id', async ({ params, request }) => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const id = String(params.id)
     const body = (await request.json()) as { name?: string }
 
@@ -39,6 +45,7 @@ export const handlers = [
   }),
 
   http.get('/api/results', ({ request }) => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const url = new URL(request.url)
     const keyword = url.searchParams.get('keyword') ?? ''
     const category = url.searchParams.get('category') ?? ''
@@ -56,9 +63,14 @@ export const handlers = [
   }),
 
   http.get('/api/ui-permissions', () => {
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     return HttpResponse.json({
       screens: ['top', 'detail.view', 'report.list'],
       actions: ['detail.update', 'detail.delete', 'report.export'],
     })
   }),
 ]
+
+function errorResponse(status: number, message: string) {
+  return HttpResponse.json({ error: message }, { status })
+}

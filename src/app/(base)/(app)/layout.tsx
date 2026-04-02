@@ -1,17 +1,15 @@
 'use client'
 
-import { BackButton } from '@/components/BackButton'
 import type { ReactNode } from 'react'
+import { AppBootstrapper } from '@/shared/app-bootstrap'
+import { PermissionProvider } from '@/shared/permission'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <header>
-        <BackButton />
-      </header>
-      <main>{children}</main>
-      <footer>
-      </footer>
-    </>
+    <PermissionProvider fallback={<p>権限を読み込んでいます...</p>}>
+      <AppBootstrapper fallback={<p>アプリデータを読み込んでいます...</p>}>
+        {children}
+      </AppBootstrapper>
+    </PermissionProvider>
   )
 }
