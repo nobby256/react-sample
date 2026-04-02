@@ -1,15 +1,15 @@
 'use client'
 
 import { AppBootstrapper } from '@/filters/AppBootstrapper'
-import { PermissionGate } from '@/filters/PermissionGate'
+import { PermissionProvider } from '@/features/permission'
 import type { ReactNode } from 'react'
 
 export default function BaseLayout({ children }: { children: ReactNode }) {
   return (
-    <PermissionGate>
+    <PermissionProvider>
       <AppBootstrapper>
         {children}
       </AppBootstrapper>
-    </PermissionGate>
+    </PermissionProvider>
   )
 }
