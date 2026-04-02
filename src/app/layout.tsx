@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, type ReactNode } from 'react'
-import { Providers } from '@/filters/Providers'
+import { QueryProviders } from '@/filters/QueryProviders'
 import { MockProvider } from '@/mocks/MockProvider'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。
@@ -14,11 +14,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="ja">
       <body>
         <MockProvider>
-          <Providers>
+          <QueryProviders>
             <Suspense>
               {children}
             </Suspense>
-          </Providers>
+          </QueryProviders>
         </MockProvider>
       </body>
     </html>
