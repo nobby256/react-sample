@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const isDev = process.env.NODE_ENV === 'development'
 
-export function QueryProviders({ children }: { children: ReactNode }) {
+export function QueryProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
