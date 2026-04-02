@@ -1,5 +1,5 @@
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getReturnTo } from '@/lib/return-to'
+import { getReturnTo } from '@/shared/return-to'
 
 type Props = {
   className?: string

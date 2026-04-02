@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { withAsyncAppError } from '@/lib/error'
+import { withAsyncAppError } from '@/shared/error'
 import { fetchDetail } from '@/services/details/fetchDetail'
 import { putDetail } from '@/services/details/putDetail'
 

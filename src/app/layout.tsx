@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, type ReactNode } from 'react'
-import { QueryProvider } from '@/lib/query/QueryProvider'
+import { QueryProvider } from '@/shared/query/QueryProvider'
 import { MockProvider } from '@/mocks/MockProvider'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。

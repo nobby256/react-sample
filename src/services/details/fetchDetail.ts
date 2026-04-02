@@ -1,4 +1,4 @@
-import { $api } from '@/lib/http/apiClient'
+import { $api } from '@/shared/http/apiClient'
 
 export type Detail = {
   id: string
