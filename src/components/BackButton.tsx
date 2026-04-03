@@ -2,62 +2,51 @@
 
 import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { useNavigationHref } from '@/shared/navigation/useNavigationHref'
+import { useReturnTo } from '@/shared/navigation'
 
 type BackButtonProps = {
   children?: ReactNode
-  fallbackHref?: string
   className?: string
 }
 
 /**
- * 共通戻るボタン。
+ * returnTo がある場合だけ有効な共通戻るボタン。
  *
- * 優先順位:
- * 1. returnTo
- * 2. browser history
- * 3. fallbackHref
- * 4. '/'
+ * 用途:
+ * - 詳細画面などで、明示的な戻り先がある時だけ戻る
+ * - returnTo が無い時は disabled にする
  *
  * @param children ボタン内に表示する内容。省略時は「戻る」
- * @param fallbackHref returnTo も browser history も使えないときの代替遷移先
  * @param className button 要素に付与する追加クラス名
  *
  * @example
  * <BackButton />
  *
  * @example
- * <BackButton className="btn-back" />
- *
- * @example
- * <BackButton fallbackHref="/results">戻る</BackButton>
+ * <BackButton className="btn-back">検索結果へ戻る</BackButton>
  */
 export function BackButton({
   children,
-  fallbackHref,
   className,
 }: BackButtonProps) {
   const router = useRouter()
-  const { returnTo } = useNavigationHref()
+  const { returnTo } = useReturnTo()
+
+  const disabled = !returnTo
 
   const handleClick = () => {
-    if (returnTo) {
-      router.push(returnTo)
+    if (!returnTo) {
       return
     }
 
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back()
-      return
-    }
-
-    router.push(fallbackHref ?? '/')
+    router.push(returnTo)
   }
 
   return (
     <button
       type="button"
       className={className}
+      disabled={disabled}
       onClick={handleClick}
     >
       {children ?? '戻る'}

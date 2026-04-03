@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import { useReturnTo } from '@/shared/navigation'
+import { useNavigationHref } from '@/shared/navigation'
 
 type FormValues = {
   keyword: string
@@ -14,7 +14,7 @@ export default function SearchPage() {
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: { keyword: '', category: '' },
   })
-  const { createHref } = useReturnTo()
+  const { createHref } = useNavigationHref()
 
   const onSubmit = (data: FormValues) => {
     const href = createHref(`/results`, {

@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { BackButton } from '@/shared/navigation'
+import { BackButton } from '@/components/BackButton'
 
 export default function PagesLayout({ children }: { children: ReactNode }) {
   return (
