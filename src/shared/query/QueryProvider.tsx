@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from '@tanstack/react-query'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -25,11 +25,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             throwOnError: true,
 
             /**
-             * コンポーネントが「再マウント」されたときに常に refetch するか
-             * - デフォルト: true（v4）または 'always' 相当 [web:279][web:281]
-             * - 'always' にすると、画面遷移で戻る／進むのたびに
-             *   同じ queryKey を使うコンポーネントでは必ず再フェッチされる
-             *   → 「過去にエラーだったからまたエラー」の状態を避けられる前提に合う
+             * コンポーネントが再マウントされたときに常に refetch するか
+             * - 'always' にすると、同じ queryKey を使うコンポーネントは mount のたびに再取得する
+             * - ただし throwOnError / ErrorBoundary 使用時の再試行には意味がない。
+             *   QueryErrorResetBoundary による reset が別途必要
              */
             refetchOnMount: 'always',
 
@@ -78,7 +77,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <QueryErrorResetBoundary>
+        {children}
+      </QueryErrorResetBoundary>
     </QueryClientProvider>
   )
 }

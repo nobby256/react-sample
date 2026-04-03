@@ -2,6 +2,7 @@
 
 import { normalizeError } from '@/shared/error'
 import { BackButton } from '@/components/BackButton'
+import { useQueryErrorResetBoundary } from '@tanstack/react-query'
 
 /**
  * 第3層: 継続可能エラー用 error.tsx
@@ -14,6 +15,7 @@ export default function RootErrorPage({ error, reset }: {
   error: Error & { digest?: string },
   reset: () => void
 }) {
+  const { reset: resetQueryErrorBoundary } = useQueryErrorResetBoundary()
 
   const appError = normalizeError(error)
   if (appError.fatal) {
@@ -29,6 +31,8 @@ export default function RootErrorPage({ error, reset }: {
 
   // 同じ画面でのリトライ
   const handleRetry = () => {
+    // QueryErrorResetBoundary のエラー状態をリセット
+    resetQueryErrorBoundary()
     // このセグメントの Error Boundary 状態をリセットして子ツリーを再レンダリング
     reset()
   }
