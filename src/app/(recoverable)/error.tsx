@@ -39,7 +39,7 @@ export default function RootErrorPage({ error, reset }: {
       <p>ステータス: {appError.status}</p>
       <p>{appError.message}</p>
       <button type="button" onClick={handleRetry}>リトライ</button>
-      <BackButton label="前の画面に戻る" />
+      <BackButton>前の画面に戻る</BackButton>
     </>
   )
 }
