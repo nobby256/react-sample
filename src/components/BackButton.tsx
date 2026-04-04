@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, type ButtonHTMLAttributes } from 'react'
-import { useBackNavigation } from '@/shared/navigation'
+import { useAppRouter } from '@/shared/navigation'
 
 export type BackButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -15,13 +15,13 @@ export const BackButton = memo(function BackButton({
   disabled,
   ...props
 }: BackButtonProps) {
-  const { canGoBack, goBack } = useBackNavigation()
+  const { canGoBack, back } = useAppRouter()
 
   return (
     <button
       type="button"
       disabled={disabled ?? !canGoBack}
-      onClick={goBack}
+      onClick={back}
       {...props}
     >
       {children}

@@ -2,11 +2,12 @@
 
 import { memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useAppRouter } from '@/shared/navigation'
 import { fetchResults } from '@/services/search/fetchResults'
 
 export default memo(function ResultsPage() {
-  const router = useRouter()
+  const router = useAppRouter()
   const searchParams = useSearchParams()
   const keyword = searchParams.get('keyword') ?? ''
   const category = searchParams.get('category') ?? ''

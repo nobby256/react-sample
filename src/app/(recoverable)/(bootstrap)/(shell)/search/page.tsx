@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
+import { useAppRouter } from '@/shared/navigation'
 
 type FormValues = {
   keyword: string
@@ -10,7 +10,7 @@ type FormValues = {
 }
 
 export default memo(function SearchPage() {
-  const router = useRouter()
+  const router = useAppRouter()
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: { keyword: '', category: '' },
   })
