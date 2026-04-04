@@ -23,7 +23,8 @@ export const handlers = [
     })
   }),
 
-  http.get('/api/detail/:id', ({ params }) => {
+  http.get('/api/detail/:id', async({ params }) => {
+    await delay(2000) // 2秒の遅延をシミュレート
     //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const id = String(params.id)
 
@@ -34,6 +35,7 @@ export const handlers = [
   }),
 
   http.put('/api/detail/:id', async ({ params, request }) => {
+    await delay(2000) // 2秒の遅延をシミュレート
     //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const id = String(params.id)
     const body = (await request.json()) as { name?: string }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery  } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { withAsyncAppError } from '@/shared/error'
@@ -12,11 +12,9 @@ export default function DetailPage() {
   const id = searchParams.get('id')
   const [name, setName] = useState('sample')
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useSuspenseQuery ({
     queryKey: ['detail', id],
     queryFn: () => fetchDetail(id!),
-    enabled: !!id,
-    throwOnError: true,
   })
 
   const mutation = useMutation({
