@@ -1,10 +1,11 @@
 'use client'
 
+import { memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchResults } from '@/services/search/fetchResults'
 
-export default function ResultsPage() {
+export default memo(function ResultsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const keyword = searchParams.get('keyword') ?? ''
@@ -36,4 +37,4 @@ export default function ResultsPage() {
       </ul>
     </main>
   )
-}
+})

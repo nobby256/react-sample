@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, type ReactNode } from 'react'
+import { memo, Suspense, type ReactNode } from 'react'
 import { QueryProvider } from '@/shared/query/QueryProvider'
 import { BackNavigationProvider } from '@/shared/navigation/BackNavigationProvider'
 import { MockProvider } from '@/mocks/MockProvider'
@@ -10,7 +10,7 @@ import { MockProvider } from '@/mocks/MockProvider'
 // よって極力エラーが発生しない処理しか実行してはいけない。
 // たとえば、<html><body></body></html>と、各種ライブラリのプロバイダーなどが該当する。
 // 逆に、通信が発生する処理は絶対呼び出さない事。
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default memo(function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <body>
@@ -26,4 +26,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   )
-}
+})

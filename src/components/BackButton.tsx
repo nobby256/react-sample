@@ -1,6 +1,6 @@
 'use client'
 
-import type { ButtonHTMLAttributes } from 'react'
+import { memo, type ButtonHTMLAttributes } from 'react'
 import { useBackNavigation } from '@/shared/navigation'
 
 export type BackButtonProps = Omit<
@@ -10,7 +10,7 @@ export type BackButtonProps = Omit<
   children?: React.ReactNode
 }
 
-export function BackButton({
+export const BackButton = memo(function BackButton({
   children = '戻る',
   disabled,
   ...props
@@ -27,4 +27,4 @@ export function BackButton({
       {children}
     </button>
   )
-}
+})

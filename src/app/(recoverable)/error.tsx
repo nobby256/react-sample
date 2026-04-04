@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { normalizeError } from '@/shared/error'
 import { BackButton } from '@/components/BackButton'
 import { useQueryErrorResetBoundary } from '@tanstack/react-query'
@@ -11,7 +12,7 @@ import { useQueryErrorResetBoundary } from '@tanstack/react-query'
  * - 完全CSR前提なので router.refresh() ではなく、reset()を使用する
  * - refetchOnMount: 'always' により必ず再フェッチされるため、resetQueryErrors()は不要
  */
-export default function RootErrorPage({ error, reset }: {
+export default memo(function RootErrorPage({ error, reset }: {
   error: Error & { digest?: string },
   reset: () => void
 }) {
@@ -46,4 +47,4 @@ export default function RootErrorPage({ error, reset }: {
       <BackButton>前の画面に戻る</BackButton>
     </>
   )
-}
+})

@@ -1,3 +1,5 @@
-export default function Loading() {
-  return <div>共通ローディング...</div>
-}
+import { memo } from 'react'
+
+export default memo(function Loading() {
+    return <div>共通ローディング...</div>
+})

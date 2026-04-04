@@ -1,9 +1,9 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { BackButton } from '@/components/BackButton'
 
-export default function PagesLayout({ children }: { children: ReactNode }) {
+export default memo(function PagesLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <header>
@@ -14,4 +14,4 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
       </footer>
     </>
   )
-}
+})

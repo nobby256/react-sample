@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 
@@ -8,7 +9,7 @@ type FormValues = {
   category: string
 }
 
-export default function SearchPage() {
+export default memo(function SearchPage() {
   const router = useRouter()
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: { keyword: '', category: '' },
@@ -28,4 +29,4 @@ export default function SearchPage() {
       </form>
     </main>
   )
-}
+})
