@@ -10,11 +10,26 @@ type BackButtonProps = {
 }
 
 /**
- * returnTo がある場合だけ有効な共通戻るボタン。
+ * アプリ共通の「戻る」ボタン。
  *
- * 用途:
- * - 詳細画面などで、明示的な戻り先がある時だけ戻る
- * - returnTo が無い時は disabled にする
+ * 基本方針:
+ * - ブラウザの戻るボタンと近い挙動を目指しつつ、
+ *   アプリ内で明示された戻り先 `returnTo` がある場合のみ有効化する。
+ * - これにより、一覧→詳細のような導線ではアプリ仕様として期待通りの戻り先を保証できる。
+ *
+ * disable 条件:
+ * - `returnTo` が存在しない場合は disabled
+ * - `window.history.length <= 1` の場合も disabled
+ *
+ * `history.length` を確認する意図:
+ * - 別タブで詳細画面を開いた場合など、ブラウザの戻るボタンで戻れない状況では
+ *   アプリ内の戻るボタンも disabled にし、違和感を減らすため。
+ * - これにより、アプリ内の戻るボタンをブラウザ戻るとできるだけ同じ世界観に寄せる。
+ *
+ * ただし完全に同じ挙動ではない:
+ * - ブラウザの戻るは別ドメインにも戻れるが、
+ *   このボタンは `returnTo` によるアプリ内遷移だけを対象にする。
+ * - そのため、ブラウザ戻るよりも「アプリの文脈に限定された戻る」として動作する。
  *
  * @param children ボタン内に表示する内容。省略時は「戻る」
  * @param className button 要素に付与する追加クラス名
@@ -32,13 +47,13 @@ export function BackButton({
   const router = useRouter()
   const { returnTo } = useReturnTo()
 
-  const disabled = !returnTo
+  const hasHistory =
+    typeof window !== 'undefined' && window.history.length > 1
+
+  const disabled = !returnTo || !hasHistory
 
   const handleClick = () => {
-    if (!returnTo) {
-      return
-    }
-
+    if (disabled) return
     router.push(returnTo)
   }
 

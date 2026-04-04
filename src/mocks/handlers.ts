@@ -24,7 +24,7 @@ export const handlers = [
   }),
 
   http.get('/api/detail/:id', ({ params }) => {
-    return errorResponse(500, 'INTERNAL SERVER ERROR')
+    //return errorResponse(500, 'INTERNAL SERVER ERROR')
     const id = String(params.id)
 
     return HttpResponse.json({
