@@ -2,6 +2,7 @@
 
 import { Suspense, type ReactNode } from 'react'
 import { QueryProvider } from '@/shared/query/QueryProvider'
+import { BackNavigationProvider } from '@/shared/navigation/BackNavigationProvider'
 import { MockProvider } from '@/mocks/MockProvider'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。
@@ -13,13 +14,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <body>
-        <MockProvider>
-          <QueryProvider>
-            <Suspense>
-              {children}
-            </Suspense>
-          </QueryProvider>
-        </MockProvider>
+        <Suspense>
+          <MockProvider>
+            <QueryProvider>
+              <BackNavigationProvider>
+                {children}
+              </BackNavigationProvider>
+            </QueryProvider>
+          </MockProvider>
+        </Suspense>
       </body>
     </html>
   )
