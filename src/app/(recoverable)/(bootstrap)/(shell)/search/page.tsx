@@ -16,7 +16,7 @@ export default memo(function SearchPage() {
   })
 
   const onSubmit = (data: FormValues) => {
-    router.push(`/results?keyword=${data.keyword}&category=${data.category}`)
+    router.push(`/results?keyword=${data.keyword}&category=${data.category}`, {appBack: true})
   }
 
   return (

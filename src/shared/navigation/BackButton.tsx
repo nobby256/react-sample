@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import { memo } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation';
 import { hasAppBackState, useAppRouter } from './useAppRouter';
 
 type BackButtonMode = 'normal' | 'back';
@@ -24,7 +25,7 @@ type BackButtonProps = {
  * また、呼び出し側から disabled を明示的に渡した場合は、
  * mode による判定よりも優先して無効化する。
  */
-export function BackButton({
+export const BackButton = memo(function BackButton({
   mode,
   className,
   disabledClassName,
@@ -33,6 +34,10 @@ export function BackButton({
   disabled = false,
 }: BackButtonProps) {
   const router = useAppRouter();
+
+  // layout.tsx 配下でも画面遷移時に再レンダーされるように購読する
+  usePathname();
+  useSearchParams();
 
   const internalDisabled = mode === 'back' ? !hasAppBackState() : false;
   const mergedDisabled = disabled || internalDisabled;
@@ -58,4 +63,4 @@ export function BackButton({
       {children ?? '戻る'}
     </button>
   );
-}
+})
