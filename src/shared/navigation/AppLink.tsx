@@ -1,15 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useAppRouter } from './AppRouter';
+import { useAppRouter } from './useAppRouter';
 
 /**
- * Props for AppLink.
+ * AppLink コンポーネントのプロパティ。
  *
- * This component preserves standard browser new-tab behavior while routing
- * normal left-click navigation through AppRouter.
+ * 通常の左クリックは AppRouter による遷移へ切り替えつつ、
+ * 新しいタブで開くブラウザ標準動作は維持する。
  */
-export type AppLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
+type AppLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
   href: string;
   appBack?: boolean;
   replace?: boolean;
@@ -28,10 +28,12 @@ function shouldHandleWithAppRouter(event: React.MouseEvent<HTMLAnchorElement>): 
 }
 
 /**
- * Anchor component for pages that may be opened either in the current tab or in a new tab.
+ * 同一タブ遷移と別タブ起動の両方を想定したリンクコンポーネント。
  *
- * Normal left click is intercepted and delegated to AppRouter so __appBack can be stored.
- * Modified clicks, middle click, and explicit new-tab targets are left to the browser.
+ * 通常の左クリックは横取りして AppRouter に委譲し、
+ * 必要に応じて __appBack を保持した状態で遷移する。
+ * 修飾キー付きクリック、中クリック、明示的な新規タブ指定は
+ * ブラウザ標準動作に任せる。
  */
 export function AppLink({
   href,

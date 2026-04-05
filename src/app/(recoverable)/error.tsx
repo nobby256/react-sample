@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 import { normalizeError } from '@/shared/error'
-import { BackButton } from '@/components/BackButton'
+import { BackButton } from '@/shared/navigation/BackButton'
 import { useQueryErrorResetBoundary } from '@tanstack/react-query'
 
 /**
@@ -44,7 +44,7 @@ export default memo(function RootErrorPage({ error, reset }: {
       <p>ステータス: {appError.status}</p>
       <p>{appError.message}</p>
       <button type="button" onClick={handleRetry}>リトライ</button>
-      <BackButton>前の画面に戻る</BackButton>
+      <BackButton mode="back" >前の画面に戻る</BackButton>
     </>
   )
 })

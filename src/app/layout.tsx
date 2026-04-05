@@ -2,7 +2,6 @@
 
 import { memo, Suspense, type ReactNode } from 'react'
 import { QueryProvider } from '@/shared/query'
-import { NavigationProvider } from '@/shared/navigation'
 import { MockProvider } from '@/mocks/MockProvider'
 
 // ここで発生した例外はglobal-error.tsxでしかキャッチできない。
@@ -17,9 +16,7 @@ export default memo(function RootLayout({ children }: { children: ReactNode }) {
         <Suspense>
           <MockProvider>
             <QueryProvider>
-              <NavigationProvider>
-                {children}
-              </NavigationProvider>
+              {children}
             </QueryProvider>
           </MockProvider>
         </Suspense>

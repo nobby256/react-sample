@@ -1,13 +1,13 @@
 'use client'
 
 import { memo, type ReactNode } from 'react'
-import { BackButton } from '@/components/BackButton'
+import { BackButton } from '@/shared/navigation'
 
 export default memo(function PagesLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <header>
-        <BackButton />
+        <BackButton mode="back" />
       </header>
       <main>{children}</main>
       <footer>
