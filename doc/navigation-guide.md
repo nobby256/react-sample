@@ -1,226 +1,142 @@
-# Navigation機能ガイド
+# Back Navigation Design for Next.js App Router + BFF
 
-このドキュメントは、プロジェクトで提供している navigation 機能の使い方をまとめたものです。`NavigationProvider` をアプリへ組み込み、`useAppRouter()` から `push`、`replace`、`back`、`canGoBack` を利用する構成を前提にしています。[1][2]
+このドキュメントは、業務アプリで「スマホ/ブラウザの戻るボタン」と「アプリ内の戻るボタン」を両立させるための設計をまとめたものです。Next.js App Router と BFF の併用を前提としています。[1][2]
 
-この navigation 機能は、ブラウザ全体の history 件数ではなく、このタブ内でのアプリ内遷移をもとに「戻れるか」を判定します。これにより、検索一覧から詳細へ移動したあとに `back()` で自然に戻しつつ、直アクセスや新規タブで開いた画面では戻るボタンを無効化しやすくなります。[3][4]
+## 想定している課題
 
-## 提供する機能
+業務アプリでは、検索一覧から詳細へ進んだあとに検索結果をそのまま復元して戻りたい一方で、アプリ内の戻るボタンによってアプリ外へ戻ってしまう挙動は避けたい、という要求がよく発生します。[3][4]
 
-この機能がアプリへ提供する API は、`push`、`replace`、`back`、`canGoBack` の4つです。公開 API を最小限に絞ることで、画面側は特定の router 実装に依存しすぎず、将来ほかの router 実装へ移行しやすくなります。[2][5][6]
+しかし Web の標準 History API では、履歴の総件数は分かっても、現在位置が履歴の何番目かは取得できません。そのため「今が履歴の先頭かどうか」を厳密に判定して戻るボタンを出し分けることは難しいです。[5][6][7]
 
-| 機能 | 用途 |
+## 基本方針
+
+この設計では、直アクセスを許可する URL を BFF 側で明示的に制御し、クライアント側では `history.state` に `__appBack` マーカーを積むことで、アプリ内の戻るボタンの有効/無効を判定します。[1][8]
+
+ブラウザの戻るボタンそのものは制御対象にせず、アプリ内の戻るボタンだけを整合的に設計します。`history.back()` は前の履歴が無い場合には no-op であり、例外を投げません。[2][9]
+
+## BFFとの連携
+
+BFF は「外部から直接アクセスを許可する URL」と「許可しない URL」を分けて扱います。直接アクセスを想定していない URL へ到達した場合は、BFF がトップページや機能トップページへリダイレクトします。[3]
+
+典型的には次のように整理します。
+
+- 直接アクセスを許可するページ: トップページ、機能トップ、共有/ブックマーク前提ページ。[3]
+- 直接アクセスを許可しないページ: フロー内部の編集画面、確認画面、途中ステップ画面。[3]
+
+このルールにより、フロー内部の通常画面では「必ず遷移元がある」という前提を置けます。[3]
+
+## コンポーネントの役割
+
+| コンポーネント | 役割 |
 |---|---|
-| `push(to, options?)` | 新しい履歴を積んで画面遷移します。[2] |
-| `replace(to, options?)` | 現在の履歴を置き換えて画面遷移します。[2][7] |
-| `back()` | 戻れる場合だけ 1 つ前の画面へ戻ります。[2][4] |
-| `canGoBack` | アプリ内履歴に基づいて戻るボタンを有効化できるかを表します。[4][8] |
+| `useAppRouter()` | Next.js App Router を包む薄いラッパ。`push` / `replace` / `back` を提供し、必要に応じて `history.state.__appBack` を設定する |
+| `BackButton` | アプリ内の戻るボタン。`mode="normal"` と `mode="back"` を持つ |
+| `AppLink` | 通常クリックだけを AppRouter 経由で遷移させ、Ctrl/Cmd+クリック・中クリック・`target="_blank"` などの新規タブ操作はブラウザ標準動作に任せる |
 
-## 仕組み
+Next.js App Router は `useRouter()` を通じて `push` / `replace` / `back` などを提供し、ネイティブ History API とも統合されています。[10][1]
 
-`NavigationProvider` は `usePathname()` と `useSearchParams()` で現在の route を組み立て、`sessionStorage` に保持しているアプリ内履歴と突き合わせて stack を更新します。[9][10] `push` のときは履歴を追加し、`replace` のときは末尾を置き換え、ブラウザの戻る操作が起きたときは現在 route に合わせて stack を整合させる想定です。[2][7]
+## `__appBack` の考え方
 
-この方式により、`history.length` のようなブラウザ全体の履歴件数に頼らずに、アプリとして意味のある「戻れるかどうか」を扱えます。`history.length` は別サイトから来た履歴や別用途の履歴も含むため、アプリ内戻るの判定にはそのまま使いにくいです。[4][8]
+URL に `back=1` のようなクエリを出すと、その URL 自体がブックマークされたときに「直アクセスなのに戻るボタンが有効になる」問題が起きます。そのため、この設計ではマーカーを URL に載せず、`history.state.__appBack` にだけ保存します。[1][11]
 
-## Providerの組み込み
+`history.state` は現在の履歴エントリに紐づくため、通常遷移でのみマーカーを積み、直アクセスや別タブ起動ではマーカーが存在しない状態を自然に作れます。[3][8]
 
-`NavigationProvider` は、アプリ全体で利用できるようにルートレイアウトなどの上位で 1 回だけ仕込みます。React では Context Provider で共通機能を配布し、画面側は custom hook から利用する構成が保守しやすいです。[11][1]
+## `BackButton` のモード
 
-```tsx
-import { NavigationProvider } from '@/shared/navigation'
+### normal モード
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="ja">
-      <body>
-        <NavigationProvider>{children}</NavigationProvider>
-      </body>
-    </html>
-  )
-}
-```
+`mode="normal"` では、戻るボタンは常に有効で、押下時は単純に `history.back()` 相当の挙動をします。[2]
 
-## AppRouterの使い方
+このモードは、直アクセスを想定していない通常画面に使います。BFF が直アクセスを防いでいるため、「必ず遷移元がある」ことを期待できます。[3]
 
-画面コンポーネントでは `next/navigation` の `useRouter()` を直接使わず、`useAppRouter()` を使います。これにより、戻る可否の判定や履歴管理のルールを画面側に漏らさず、ルーター差し替え時の影響範囲も抑えられます。[12][13]
+### back モード
 
-```tsx
-'use client'
+`mode="back"` では、現在の履歴エントリに `history.state.__appBack === true` がある場合だけ有効です。無ければボタンは disabled になります。[1]
 
-import { useAppRouter } from '@/shared/navigation'
+このモードは、共有・ブックマーク・別タブ起動を想定する画面に使います。たとえば検索一覧や詳細画面が代表例です。[4]
 
-export function SearchActions() {
-  const router = useAppRouter()
+## `AppLink` の役割
 
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => router.push('/search?keyword=react&page=1')}
-      >
-        検索一覧へ
-      </button>
+`AppLink` は、詳細画面など「同一タブ遷移では戻るボタンを有効にしたいが、新しいタブで開いたときは entry 扱いにしたい」画面用のリンクです。[12][13]
 
-      <button
-        type="button"
-        onClick={() =>
-          router.replace('/search?keyword=react&page=1', {
-            scroll: false,
-          })
-        }
-      >
-        URLを置換
-      </button>
+通常の左クリックでは `preventDefault()` したうえで `useAppRouter().push()` または `replace()` を呼び、必要なら `appBack: true` によって `__appBack` を積みます。[1]
 
-      <button type="button" onClick={router.back} disabled={!router.canGoBack}>
-        戻る
-      </button>
-    </div>
-  )
-}
-```
+一方、Ctrl/Cmd+クリック、中クリック、修飾キー付きクリック、`target="_blank"` のときはブラウザ標準動作に任せます。こうした操作では新しいタブが開かれ、`history.state.__appBack` は積まれません。[12][14]
 
-### pushを使う場面
+## 想定シナリオ
 
-通常の画面遷移には `push()` を使います。たとえば検索一覧から詳細画面へ進む場合や、一覧条件を保ったまま別画面へ進む場合は `push()` が自然です。[2]
+### 検索一覧から詳細へ通常クリック
+
+1. 一覧画面で `AppLink href="/detail/123" appBack` をクリックする
+2. `AppRouter.push()` が `history.state.__appBack = true` を付けて遷移する
+3. 詳細画面では `BackButton mode="back"` が有効になる
+4. 戻るボタンを押すと `history.back()` で一覧へ戻る
+
+この場合、一覧 URL 自体が状態を表現できていれば、ブラウザ履歴によって検索結果を再現できます。[3][15]
+
+### 検索一覧の詳細を新しいタブで開く
+
+1. ユーザーが右クリックのメニューや Ctrl/Cmd+クリックで詳細を新しいタブで開く
+2. ブラウザは `href` をそのまま開く
+3. 新しいタブの詳細画面には `__appBack` が存在しない
+4. `BackButton mode="back"` は disabled になる
+
+このときブラウザの履歴上は前ページが無いこともありますが、`history.back()` 自体は no-op なので、アプリ側で disabled にしておく方が利用者には分かりやすいです。[2][16]
+
+### 共有 URL やブックマークから詳細へ直アクセス
+
+1. ユーザーが保存済みの URL を開く
+2. URL はクリーンで、`back` のようなクエリは付いていない
+3. BFF がそのページを「直アクセス許可ページ」として許可していれば表示される
+4. `__appBack` は存在しないため、`BackButton mode="back"` は disabled のままになる
+
+この挙動により、「ブックマークしてよいページ」なのに「ブックマーク経由だと戻るボタンの意味が壊れる」という問題を回避できます。[1][8]
+
+## 使い方
+
+### 1. 通常の内部画面
+
+直アクセスを想定しない画面では、画面遷移にボタンと `useAppRouter()` を使い、戻るは `BackButton mode="normal"` にします。
 
 ```tsx
-router.push('/detail/123?keyword=react&page=1')
-```
+const router = useAppRouter();
 
-### replaceを使う場面
-
-戻る履歴として残したくない遷移には `replace()` を使います。たとえば URL 正規化、初期条件の付与、不要な中継画面の置き換えなどで有効です。[7][2]
-
-```tsx
-router.replace('/search?keyword=react&page=1', { scroll: false })
-```
-
-### backを使う場面
-
-一覧から詳細へ移動し、その後に「当時の一覧状態へ戻したい」場合は `back()` が最も自然です。検索条件を URL に載せていれば、戻った時点の URL から一覧状態を再現しやすくなります。[4][10]
-
-```tsx
-if (router.canGoBack) {
-  router.back()
-}
-```
-
-## 戻るボタンの作り方
-
-戻るボタン自体の見た目や配置はアプリのデザイン次第なので、UI コンポーネントとしては各アプリ側で作る想定です。実装上のポイントは、`canGoBack` を見て `disabled` を切り替えることと、押下時は `back()` を呼ぶことです。[4][8]
-
-```tsx
-'use client'
-
-import { useAppRouter } from '@/shared/navigation'
-
-type BackButtonProps = {
-  label?: string
-}
-
-export function BackButton({ label = '戻る' }: BackButtonProps) {
-  const router = useAppRouter()
-
-  return (
-    <button
-      type="button"
-      onClick={router.back}
-      disabled={!router.canGoBack}
-      aria-disabled={!router.canGoBack}
-    >
-      {label}
-    </button>
-  )
-}
-```
-
-## Link相当のシンプルな作り方
-
-標準の `<Link>` をそのまま使うと、アプリ独自の履歴ルールを通らない場面が出る可能性があるため、必要に応じて薄いラッパーを用意すると運用しやすくなります。見た目はアプリごとに変えられるようにして、遷移処理だけ `useAppRouter()` へ寄せる形が扱いやすいです。[14][12]
-
-```tsx
-'use client'
-
-import { MouseEvent, ReactNode } from 'react'
-import { useAppRouter } from '@/shared/navigation'
-
-type AppLinkProps = {
-  to: string
-  children: ReactNode
-  replace?: boolean
-  className?: string
-}
-
-export function AppLink({
-  to,
-  children,
-  replace = false,
-  className,
-}: AppLinkProps) {
-  const router = useAppRouter()
-
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-
-    if (replace) {
-      router.replace(to)
-      return
-    }
-
-    router.push(to)
-  }
-
-  return (
-    <a href={to} onClick={handleClick} className={className}>
-      {children}
-    </a>
-  )
-}
-```
-
-このサンプルは最小構成なので、実運用では Ctrl/Cmd + click、中央クリック、新規タブ、外部 URL 判定などを追加で考慮するとより実用的です。UI とアクセシビリティの要件に応じて調整してください。[14][11]
-
-## 検索一覧から詳細へ戻る例
-
-この navigation 機能が特に有効なのは、検索条件を URL に保持して一覧再現を行うケースです。たとえば検索一覧で `keyword` や `page` を query string に載せて詳細へ遷移すれば、詳細画面の戻るボタンから `back()` した時に、その時点の URL をもとに一覧を復元できます。[10][4]
-
-```tsx
-// 一覧画面
-router.push('/detail/123?keyword=react&page=2')
-```
-
-```tsx
-// 詳細画面
-<button type="button" onClick={router.back} disabled={!router.canGoBack}>
-  一覧に戻る
+<button onClick={() => router.push('/orders/confirm')}>
+  確認へ
 </button>
+
+<BackButton mode="normal" />
 ```
 
-## 利用時のルール
+### 2. 共有・別タブ・ブックマーク対象の画面
 
-この機能を正しく動かすには、プログラム的な画面遷移をなるべく `useAppRouter()` に統一するのが重要です。別の場所で `next/navigation` の生の `router.push()` や `router.replace()` を直接使うと、アプリ内履歴の整合が崩れる可能性があります。[2][7]
+一覧や詳細のような画面では、リンクに `AppLink` を使い、戻るは `BackButton mode="back"` にします。
 
-運用ルールとしては、次のように決めておくと分かりやすいです。
+```tsx
+<AppLink href={`/orders/${orderId}`} appBack>
+  詳細へ
+</AppLink>
 
-- 通常遷移は `push()` を使う。[2]
-- 履歴として残したくない遷移だけ `replace()` を使う。[7]
-- 戻る UI は `canGoBack` を見て活性・非活性を制御する。[4][8]
-- 検索状態の再現は URL パラメータで行う。[10]
-
-## export一覧
-
-この機能は `index.ts` からまとめて import できる想定です。barrel file は便利ですが、内部実装ファイル同士で多用すると循環参照やビルドコストの問題につながることがあるため、外部公開 API としての利用を基本にすると安全です。[15][16]
-
-```ts
-import {
-  NavigationProvider,
-  useAppRouter,
-  type AppRouter,
-  type AppNavigationOptions,
-  type AppRouteTo,
-} from '@/shared/navigation'
+<BackButton mode="back" />
 ```
+
+この使い分けにより、通常遷移のときだけ `__appBack` が積まれます。[1][12]
+
+## 実装上の注意
+
+`BackButton` は、初回レンダー時の「一瞬 enabled になってから disabled へ変わる」ちらつきを避けるため、`mode="back"` の初期値を disabled にし、`useLayoutEffect` で `history.state` を確認する実装にしています。[1]
+
+また `AppRouter.back()` は将来のルーター交換に備えた薄い抽象化であり、現時点では `window.history.back()` 相当の動作に留めています。これはブラウザ履歴との整合を保つためです。[2][10]
+
+## この設計の利点
+
+- URL を汚さずに戻るボタンの可否を判定できる。[1]
+- ブックマーク可能な詳細画面でも、直アクセス時に誤って戻るボタンが有効にならない。[8][1]
+- 新しいタブで開くというブラウザ標準操作を壊さない。[13][14]
+- アプリ内部の通常画面では、BFF のガードによって `history.back()` 前提の設計をシンプルに保てる。[3]
+
+## 制約
+
+この設計は、ブラウザの戻るボタンそのものを制御するものではありません。ブラウザ戻るの方がアプリ内戻るより広い範囲へ戻れる状況は、Web の性質上残ります。[6][7]
+
+また、`history.state` に依存するため、ページをまたぐナビゲーションの組み立ては `useAppRouter()` と `AppLink` を経由するという運用ルールが必要です。[1]
