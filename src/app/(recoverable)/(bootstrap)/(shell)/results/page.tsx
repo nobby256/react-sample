@@ -3,11 +3,12 @@
 import { memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
-import { useAppRouter } from '@/shared/navigation'
 import { fetchResults } from '@/services/search/fetchResults'
+import { PageFrame } from '@/components/PageFrame'
+import { useRouter } from 'next/navigation'
 
 export default memo(function ResultsPage() {
-  const router = useAppRouter()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const keyword = searchParams.get('keyword') ?? ''
   const category = searchParams.get('category') ?? ''
@@ -25,8 +26,7 @@ export default memo(function ResultsPage() {
   }
 
   return (
-    <main>
-      <h1>検索結果画面</h1>
+    <PageFrame title="検索結果画面">
       <ul>
         {data?.map((item) => (
           <li key={item.id}>
@@ -36,6 +36,6 @@ export default memo(function ResultsPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </PageFrame>
   )
 })

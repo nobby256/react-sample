@@ -39,13 +39,12 @@ export function useAppRouter(): AppRouter {
   const push: AppRouter['push'] = (url, options) => {
     const { appBack = false, scroll } = options ?? {};
 
-    if (appBack) {
+    router.push(url, scroll === undefined ? undefined : { scroll });
+   if (appBack) {
       const currentState = window.history.state ?? {};
       const nextState = { ...currentState, [APP_BACK_KEY]: true };
       window.history.pushState(nextState, '', url);
     }
-
-    router.push(url, scroll === undefined ? undefined : { scroll });
   };
 
   const replace: AppRouter['replace'] = (url, options) => {

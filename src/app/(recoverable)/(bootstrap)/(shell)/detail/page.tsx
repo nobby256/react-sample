@@ -6,6 +6,7 @@ import { memo, useState } from 'react'
 import { withAsyncAppError } from '@/shared/error'
 import { fetchDetail } from '@/services/details/fetchDetail'
 import { putDetail } from '@/services/details/putDetail'
+import { PageFrame } from '@/components/PageFrame'
 
 export default memo(function DetailPage() {
   const searchParams = useSearchParams()
@@ -35,13 +36,12 @@ export default memo(function DetailPage() {
   }
 
   return (
-    <main>
-      <h1>詳細画面</h1>
+    <PageFrame title="詳細画面">
       <p>現在の値: {data?.name}</p>
       <input value={name} onChange={(e) => setName(e.target.value)} />
       <button type="button" onClick={handleUpdate} disabled={mutation.isPending}>
         {mutation.isPending ? '更新中...' : '更新'}
       </button>
-    </main>
+    </PageFrame>
   )
 })
